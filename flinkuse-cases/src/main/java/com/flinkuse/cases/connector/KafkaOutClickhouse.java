@@ -1,4 +1,4 @@
-package com.flinkuse.cases.ods;
+package com.flinkuse.cases.connector;
 
 import com.alibaba.fastjson.JSONObject;
 import com.flinkuse.core.base.StreamApp;
@@ -39,7 +39,7 @@ import java.util.concurrent.TimeUnit;
  * @author learn
  * @date 2023/6/6 15:48
  */
-public class BinlogOdsOperate extends StreamApp {
+public class KafkaOutClickhouse extends StreamApp {
 
     private final long asyncTimeout;
     private final int asyncOpMaxNum;
@@ -48,13 +48,13 @@ public class BinlogOdsOperate extends StreamApp {
 
     public static void main(String[] args) {
         try {
-            new BinlogOdsOperate(args,"binlog ods operate").start();
+            new KafkaOutClickhouse(args,"binlog ods operate").start();
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    public BinlogOdsOperate(String[] args, String jobName) {
+    public KafkaOutClickhouse(String[] args, String jobName) {
         super(args, jobName);
         asyncTimeout = getScpsParams().getLong("ods_op_async_timeout", 1L);
         asyncOpMaxNum = getScpsParams().getInt("ods_op_async_MaxNum", 5);

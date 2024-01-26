@@ -1,4 +1,4 @@
-package com.flinkuse.cases.ods;
+package com.flinkuse.cases.connector;
 
 import com.flinkuse.core.base.StreamApp;
 import com.flinkuse.core.enums.OdsBasicsConf;
@@ -46,6 +46,5 @@ public class BinlogOutKafka extends StreamApp {
                 .setTopic(OdsBasicsConf.binlogTopic)
                 .setValueSerializationSchema(new KafkaSerializationBinlog())
                 .build());
-
     }
 }

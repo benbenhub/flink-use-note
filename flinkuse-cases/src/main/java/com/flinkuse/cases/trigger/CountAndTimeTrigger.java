@@ -1,4 +1,4 @@
-package com.flinkuse.cases.common;
+package com.flinkuse.cases.trigger;
 
 import org.apache.flink.api.common.state.ValueStateDescriptor;
 import org.apache.flink.streaming.api.windowing.time.Time;
