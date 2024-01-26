@@ -1,0 +1,9 @@
+flinkuse.properties
+/logs/
+/flinkuse-core/target/
+/flinkuse-cases/target/
+/flinkuse-shaded/target/
+/build/
+/scps-lib/
+/.gradle/
+/.idea/
