@@ -14,13 +14,17 @@ import org.apache.flink.api.common.eventtime.SerializableTimestampAssigner;
 import org.apache.flink.api.common.eventtime.WatermarkStrategy;
 import org.apache.flink.api.common.typeinfo.BasicTypeInfo;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
+import org.apache.flink.api.connector.source.Boundedness;
 import org.apache.flink.api.java.typeutils.MapTypeInfo;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.connector.kafka.source.KafkaSource;
 import org.apache.flink.connector.mongodb.source.MongoSourceBuilder;
 import org.apache.flink.connector.mongodb.source.reader.deserializer.MongoDeserializationSchema;
 import org.apache.flink.streaming.api.datastream.DataStream;
+import org.apache.flink.streaming.api.datastream.DataStreamSource;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
+import org.apache.flink.streaming.api.functions.source.InputFormatSourceFunction;
+import org.apache.flink.streaming.api.operators.StreamSource;
 import org.bson.BsonDocument;
 import org.bson.BsonValue;
 
@@ -100,7 +104,15 @@ public class StreamSourceFactory extends ConfigBase {
     }
 
     public DataStream<String> cosSource(String... cosObjs) {
-        return env.createInput(new CosInputFormat(cosObjs));
+        InputFormatSourceFunction<String> function =
+                new InputFormatSourceFunction<>(new CosInputFormat(cosObjs), BasicTypeInfo.STRING_TYPE_INFO);
+
+        return new DataStreamSource<>(env,
+                BasicTypeInfo.STRING_TYPE_INFO,
+                new StreamSource<>(function),
+                false,
+                "scps COS Source",
+                Boundedness.BOUNDED);
     }
 
 }
