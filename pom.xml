@@ -19,7 +19,7 @@
         <fastjson.version>1.2.83</fastjson.version>
         <maven.compiler.source>11</maven.compiler.source>
         <maven.compiler.target>11</maven.compiler.target>
-        <flink.version>1.15.2</flink.version>
+        <flink.version>1.15.4</flink.version>
         <apache.compress.version>1.20</apache.compress.version>
         <apache.httpclient.version>4.5.13</apache.httpclient.version>
         <apache.httpcore.version>4.4.12</apache.httpcore.version>
