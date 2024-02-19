@@ -23,23 +23,8 @@ public class FlinkcdcConnectorFormat extends ConfigBase {
     public FlinkcdcConnectorFormat(Configuration scpsConfig) {
         super(scpsConfig);
     }
-//    @Deprecated
-//    public <T> DebeziumSourceFunction<T> createMysqlCdc(StartupOptions ss, DebeziumDeserializationSchema<T> deserializer){
-//        return MySqlSource.<T>builder()
-//                .hostname(this.scpsConfig.get(ConfigKeys.binlog_host))
-//                .port(this.scpsConfig.getInteger(ConfigKeys.binlog_port))
-//                .databaseList(this.scpsConfig.get(ConfigKeys.binlog_database_list).split(";"))
-//                .tableList(this.scpsConfig.get(ConfigKeys.binlog_table_list).split(";"))
-//                .username(this.scpsConfig.get(ConfigKeys.binlog_username))
-//                .password(this.scpsConfig.get(ConfigKeys.binlog_password))
-//                .deserializer(deserializer)
-//                .startupOptions(ss)
-//                .serverId(this.scpsConfig.getInteger(ConfigKeys.binlog_server_id))
-//                .build();
-//    }
 
-
-    public <T> MySqlSource<T> createMysqlCdcNew(StartupOptions ss, DebeziumDeserializationSchema<T> deserializer){
+    public <T> MySqlSource<T> createMysqlCdc(StartupOptions ss, DebeziumDeserializationSchema<T> deserializer){
 
         MySqlSourceBuilder<T> mySqlSourceBuilder = MySqlSource.<T>builder()
                 .hostname(this.scpsConfig.get(ConfigKeys.binlog_host))
@@ -62,7 +47,7 @@ public class FlinkcdcConnectorFormat extends ConfigBase {
     }
 
     public <T> MongoDBSource<T> createMongodbCdc(DebeziumDeserializationSchema<T> deserializer){
-        MongoDBSourceBuilder<T> mongoDBSourceBuilder =  MongoDBSource.<T>builder()
+        MongoDBSourceBuilder<T> mongoDBSourceBuilder = MongoDBSource.<T>builder()
                 .hosts(this.scpsConfig.get(ConfigKeys.mongodb_host) + ":" + this.scpsConfig.get(ConfigKeys.mongodb_port))
                 .username(this.scpsConfig.get(ConfigKeys.mongodb_username))
                 .password(this.scpsConfig.get(ConfigKeys.mongodb_password))

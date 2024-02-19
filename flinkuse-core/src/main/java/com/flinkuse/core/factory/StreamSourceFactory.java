@@ -47,8 +47,9 @@ public class StreamSourceFactory extends ConfigBase {
         /*
         flink cdc改成新的api
         return env.addSource(new FlinkcdcConnectorFormat(this.scpsConfig).createMysqlCdc(ss, new BinlogDeserializerMap()));
+        addSource 换成 fromSource
          */
-        return env.fromSource(new FlinkcdcConnectorFormat(this.scpsConfig).createMysqlCdcNew(ss, new BinlogDeserializer())
+        return env.fromSource(new FlinkcdcConnectorFormat(this.scpsConfig).createMysqlCdc(ss, new BinlogDeserializer())
             , WatermarkStrategy.<BinlogBean>forMonotonousTimestamps().withTimestampAssigner(
                 (SerializableTimestampAssigner<BinlogBean>) (ob, l) -> {
                     if (ob.getTSMS() == null || ob.getTSMS() == 0) {

@@ -53,11 +53,11 @@ public class Elasticsearch7InputFormat extends RichInputFormat<Map<String, Objec
 
     private Iterator<Map<String, Object>> iterator;
 
-    public Elasticsearch7InputFormat(HttpHost[] hosts, String index, String in, String... fields) throws IOException {
+    public Elasticsearch7InputFormat(HttpHost[] hosts, String index, String in, String... includes) throws IOException {
         this.hosts = hosts;
         this.index = index;
         this.query = in;
-        this.fields = fields;
+        this.fields = includes;
     }
 
     @Override

@@ -90,14 +90,14 @@ public class BatchSourceFactory extends ConfigBase {
         }
     }
 
-    public DataSet<Map<String, Object>> elasticsearchSource(String index, String query, String... fields) {
+    public DataSet<Map<String, Object>> elasticsearchSource(String index, String query, String... includes) {
         try {
             HttpHost[] hosts = new HttpHost[]{
                     new HttpHost(scpsConfig.get(ConfigKeys.elasticsearch_host)
                             , scpsConfig.get(ConfigKeys.elasticsearch_port)
                             , scpsConfig.get(ConfigKeys.elasticsearch_scheme))
             };
-            return env.createInput(new Elasticsearch7InputFormat(hosts,index, query, fields));
+            return env.createInput(new Elasticsearch7InputFormat(hosts,index, query, includes));
         } catch (IOException e) {
             e.printStackTrace();
             return null;
