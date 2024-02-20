@@ -4,7 +4,7 @@ import com.flinkuse.core.base.ConfigBase;
 import com.flinkuse.core.connector.elasticsearch7.Elasticsearch7InputFormat;
 import com.flinkuse.core.connector.jdbc.SpJdbcInputFormat;
 import com.flinkuse.core.constance.ConfigKeys;
-import com.flinkuse.core.enums.JdbcConnectionType;
+import com.flinkuse.core.enums.JdbcType;
 import com.flinkuse.core.modul.SqlColumn;
 import com.flinkuse.core.connector.mongodb.MongodbInputFormat;
 import com.flinkuse.core.util.SQLParseUtil;
@@ -38,11 +38,11 @@ public class BatchSourceFactory extends ConfigBase {
         BatchSourceFactory.env = env;
     }
 
-    public DataSet<Row> jdbcSource(JdbcConnectionType sourceType, String sql) throws Exception {
+    public DataSet<Row> jdbcSource(JdbcType sourceType, String sql) throws Exception {
         return rowArrayTurnMap(jdbcSource(sourceType, sql, getObjectRowTypeInfo(SQLParseUtil.parseSelect(sql,sourceType))));
     }
 
-    public <T> DataSet<T> jdbcSource(JdbcConnectionType sourceType, String sql, T t) throws Exception {
+    public <T> DataSet<T> jdbcSource(JdbcType sourceType, String sql, T t) throws Exception {
         Class<T> c = (Class<T>) t.getClass();
 
         Field[] fields = c.getDeclaredFields();
@@ -75,7 +75,7 @@ public class BatchSourceFactory extends ConfigBase {
      * @return
      */
     public DataSet<Row> jdbcSource(
-            JdbcConnectionType sourceType
+            JdbcType sourceType
             , String sql
             , RowTypeInfo rowTypeInfo
     ) {
@@ -91,17 +91,7 @@ public class BatchSourceFactory extends ConfigBase {
     }
 
     public DataSet<Map<String, Object>> elasticsearchSource(String index, String query, String... includes) {
-        try {
-            HttpHost[] hosts = new HttpHost[]{
-                    new HttpHost(scpsConfig.get(ConfigKeys.elasticsearch_host)
-                            , scpsConfig.get(ConfigKeys.elasticsearch_port)
-                            , scpsConfig.get(ConfigKeys.elasticsearch_scheme))
-            };
-            return env.createInput(new Elasticsearch7InputFormat(hosts,index, query, includes));
-        } catch (IOException e) {
-            e.printStackTrace();
-            return null;
-        }
+        return env.createInput(new Elasticsearch7InputFormat(index, query, includes));
     }
 
     public DataSet<Map<String, Object>> mongodbSource(String database,String collection, String filter) {

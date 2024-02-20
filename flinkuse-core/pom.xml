@@ -194,11 +194,6 @@
             </exclusions>
         </dependency>
 
-        <dependency>
-            <groupId>com.getindata</groupId>
-            <artifactId>flink-http-connector</artifactId>
-        </dependency>
-
         <!-- alibaba解析json工具 -->
         <dependency>
             <groupId>com.alibaba</groupId>

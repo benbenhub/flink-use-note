@@ -48,14 +48,8 @@ public class Elasticsearch7Function implements Serializable, Function {
     public void open(Configuration parameters) {
         MAX_QUERY_SIZE = parameters.get(ConfigKeys.elasticsearch_max_query_size);
 
-        HttpHost[] hosts = new HttpHost[]{
-                new HttpHost(parameters.get(ConfigKeys.elasticsearch_host)
-                        , parameters.get(ConfigKeys.elasticsearch_port)
-                        , parameters.get(ConfigKeys.elasticsearch_scheme))
-        };
-
         try {
-            restHighLevelClient = new RestHighLevelClient(Elasticsearch7ClientBase.getRestClientBuilder(hosts,parameters));
+            restHighLevelClient = new RestHighLevelClient(Elasticsearch7ClientBase.getRestClientBuilder(parameters));
         }catch (Exception e){
             e.printStackTrace();
         }

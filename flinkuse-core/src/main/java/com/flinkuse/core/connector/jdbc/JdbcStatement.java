@@ -11,9 +11,9 @@ import java.util.function.Function;
  * @date 2022/7/29 16:39
  */
 @Slf4j
-public class JdbcStatementFunction {
+public class JdbcStatement {
     private final JdbcConnectionPool pool;
-    public JdbcStatementFunction(JdbcConnectionPool pool) {
+    public JdbcStatement(JdbcConnectionPool pool) {
         this.pool = pool;
     }
     public List<Map<String,Object>> runQuery(String sql) throws SQLException {

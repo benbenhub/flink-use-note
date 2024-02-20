@@ -238,12 +238,6 @@
                 <artifactId>flink-connector-mongodb</artifactId>
                 <version>1.0.1-1.16</version>
             </dependency>
-
-            <dependency>
-                <groupId>com.getindata</groupId>
-                <artifactId>flink-http-connector</artifactId>
-                <version>0.9.0</version>
-            </dependency>
             <!--    redis依赖-->
 <!--            <dependency>-->
 <!--                <groupId>org.apache.bahir</groupId>-->

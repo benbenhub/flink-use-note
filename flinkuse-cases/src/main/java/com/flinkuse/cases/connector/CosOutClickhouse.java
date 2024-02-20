@@ -1,7 +1,7 @@
 package com.flinkuse.cases.connector;
 
 import com.flinkuse.core.base.StreamApp;
-import com.flinkuse.core.enums.JdbcConnectionType;
+import com.flinkuse.core.enums.JdbcType;
 import org.apache.flink.api.common.functions.FlatMapFunction;
 import org.apache.flink.connector.jdbc.JdbcStatementBuilder;
 import org.apache.flink.streaming.api.datastream.DataStream;
@@ -30,7 +30,7 @@ public class CosOutClickhouse extends StreamApp {
             }
         });
 
-        sink().jdbcSink(JdbcConnectionType.clickhouse, sor
+        sink().jdbcSink(JdbcType.clickhouse, sor
                 , "INSERT INTO db.tb values(?,?,?,?,?,?,?,?,?,?,?,?,?)"
                 , (JdbcStatementBuilder<String[]>) (ps, r) -> {
                     ps.setString(1, r[0]);

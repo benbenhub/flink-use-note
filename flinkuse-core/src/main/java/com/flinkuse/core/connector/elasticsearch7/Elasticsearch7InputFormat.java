@@ -10,7 +10,6 @@ import org.apache.flink.configuration.Configuration;
 import org.apache.flink.core.io.GenericInputSplit;
 import org.apache.flink.core.io.InputSplit;
 import org.apache.flink.core.io.InputSplitAssigner;
-import org.apache.http.HttpHost;
 import org.elasticsearch.action.search.*;
 import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.RestHighLevelClient;
@@ -22,6 +21,8 @@ import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.elasticsearch.search.slice.SliceBuilder;
 
 import java.io.IOException;
+import java.security.KeyManagementException;
+import java.security.NoSuchAlgorithmException;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -35,7 +36,6 @@ public class Elasticsearch7InputFormat extends RichInputFormat<Map<String, Objec
 
     long keepAlive = 10;
     private static final long serialVersionUID = 1L;
-//    private static final Logger LOG = LoggerFactory.getLogger(Elasticsearch7InputFormat.class);
 
     private transient RestHighLevelClient restHighLevelClient;
     private transient SearchRequest searchRequest;
@@ -43,7 +43,6 @@ public class Elasticsearch7InputFormat extends RichInputFormat<Map<String, Objec
     private final String query;
     private final String index;
     private final String[] fields;
-    private final HttpHost[] hosts;
 
     private int fetchSize;
 
@@ -53,8 +52,7 @@ public class Elasticsearch7InputFormat extends RichInputFormat<Map<String, Objec
 
     private Iterator<Map<String, Object>> iterator;
 
-    public Elasticsearch7InputFormat(HttpHost[] hosts, String index, String in, String... includes) throws IOException {
-        this.hosts = hosts;
+    public Elasticsearch7InputFormat(String index, String in, String... includes) {
         this.index = index;
         this.query = in;
         this.fields = includes;
@@ -68,15 +66,12 @@ public class Elasticsearch7InputFormat extends RichInputFormat<Map<String, Objec
     @Override
     public void openInputFormat() {
         Configuration parameters = (Configuration) getRuntimeContext().getExecutionConfig().getGlobalJobParameters();
-
         fetchSize = parameters.getInteger(ConfigKeys.elasticsearch_bulk_flush_max_actions);
-
         try {
-            restHighLevelClient = new RestHighLevelClient(Elasticsearch7ClientBase.getRestClientBuilder(hosts,parameters));
-        }catch (Exception e){
+            restHighLevelClient = new RestHighLevelClient(Elasticsearch7ClientBase.getRestClientBuilder(parameters));
+        } catch (NoSuchAlgorithmException | KeyManagementException e) {
             e.printStackTrace();
         }
-
     }
 
     @Override
@@ -87,12 +82,12 @@ public class Elasticsearch7InputFormat extends RichInputFormat<Map<String, Objec
     }
 
     @Override
-    public BaseStatistics getStatistics(BaseStatistics cachedStatistics) throws IOException {
+    public BaseStatistics getStatistics(BaseStatistics cachedStatistics) {
         return cachedStatistics;
     }
 
     @Override
-    public InputSplit[] createInputSplits(int minNumSplits) throws IOException {
+    public InputSplit[] createInputSplits(int minNumSplits) {
         InputSplit[] splits = new InputSplit[minNumSplits];
         for (int i = 0; i < minNumSplits; i++) {
             splits[i] = new GenericInputSplit(i, minNumSplits);
@@ -138,7 +133,7 @@ public class Elasticsearch7InputFormat extends RichInputFormat<Map<String, Objec
     }
 
     @Override
-    public Map<String, Object> nextRecord(Map<String, Object> reuse) throws IOException {
+    public Map<String, Object> nextRecord(Map<String, Object> reuse) {
         reuse = iterator.next();
         return reuse;
     }

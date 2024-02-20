@@ -1,7 +1,5 @@
 package com.flinkuse.core.base;
 
-import cn.hutool.log.Log;
-import cn.hutool.log.LogFactory;
 import org.apache.flink.configuration.Configuration;
 
 import java.io.Serializable;
@@ -13,7 +11,6 @@ import java.io.Serializable;
 public abstract class ConfigBase implements Serializable {
 
     protected final Configuration scpsConfig;
-    protected final Log log = LogFactory.get();
 
     protected ConfigBase(Configuration scpsConfig){
         this.scpsConfig = scpsConfig;

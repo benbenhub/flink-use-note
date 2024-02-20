@@ -1,6 +1,6 @@
 package com.flinkuse.core.util;
 
-import com.flinkuse.core.connector.jdbc.JdbcStatementFunction;
+import com.flinkuse.core.connector.jdbc.JdbcStatement;
 import com.flinkuse.core.connector.jdbc.JdbcConnectionPool;
 import com.flinkuse.core.constance.ConfigKeys;
 import org.apache.flink.configuration.Configuration;
@@ -12,7 +12,7 @@ import org.apache.flink.configuration.Configuration;
 public class ClickHouseDBOPUtil {
 
     private JdbcConnectionPool jdbcConnect;
-    private JdbcStatementFunction jdbcQueryFunction;
+    private JdbcStatement jdbcQueryFunction;
 
     public ClickHouseDBOPUtil(Configuration scpsConfig) throws Exception {
         jdbcConnect = JdbcConnectionPool.buildJdbcConnectionPool()
@@ -30,10 +30,10 @@ public class ClickHouseDBOPUtil {
                 .setMaxEvictableIdleTimeMillis(scpsConfig.getInteger(ConfigKeys.clickhouse_max_evictable_idle_time_millis))
                 .setKeepAliveBetweenTimeMillis(scpsConfig.getInteger(ConfigKeys.clickhouse_keep_alive_between_time_millis))
                 .finish();
-        jdbcQueryFunction = new JdbcStatementFunction(jdbcConnect);
+        jdbcQueryFunction = new JdbcStatement(jdbcConnect);
     }
 
-    public JdbcStatementFunction queryFunction(){
+    public JdbcStatement queryFunction(){
         return jdbcQueryFunction;
     }
     public void close(){

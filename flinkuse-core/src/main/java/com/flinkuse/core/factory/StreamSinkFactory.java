@@ -4,17 +4,13 @@ import cn.hutool.core.annotation.AnnotationUtil;
 import cn.hutool.core.util.ReflectUtil;
 import com.alibaba.fastjson.JSONObject;
 import com.flinkuse.core.base.ConfigBase;
-import com.flinkuse.core.enums.DBInfo;
-import com.flinkuse.core.enums.JdbcConnectionType;
-import com.flinkuse.core.modul.EsBundle;
-import com.getindata.connectors.http.HttpSink;
-import com.getindata.connectors.http.SchemaLifecycleAwareElementConverter;
-import com.getindata.connectors.http.internal.sink.HttpSinkRequestEntry;
 import com.flinkuse.core.connector.elasticsearch7.Elasticsearch7SinkFormat;
 import com.flinkuse.core.connector.jdbc.JdbcSinkFormat;
 import com.flinkuse.core.constance.ConfigKeys;
-import org.apache.flink.api.connector.sink2.Sink;
-import org.apache.flink.api.connector.sink2.SinkWriter;
+import com.flinkuse.core.enums.DBInfo;
+import com.flinkuse.core.enums.JdbcType;
+import com.flinkuse.core.modul.EsBundle;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.flink.api.java.tuple.Tuple2;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.connector.base.DeliveryGuarantee;
@@ -32,34 +28,33 @@ import org.elasticsearch.client.Requests;
 import org.elasticsearch.common.xcontent.XContentType;
 
 import java.lang.reflect.Method;
-import java.nio.charset.StandardCharsets;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Properties;
 
 /**
  * @author learn
  * @date 2022/3/18 16:38
  */
+@Slf4j
 public class StreamSinkFactory extends ConfigBase {
 
     public StreamSinkFactory(Configuration scpsConfig) {
          super(scpsConfig);
     }
 
-    public void jdbcRowSink(JdbcConnectionType sourceType, DataStream<Row> r, String sql, JdbcStatementBuilder<Row> jsb) {
+    public void jdbcRowSink(JdbcType sourceType, DataStream<Row> r, String sql, JdbcStatementBuilder<Row> jsb) {
         r.addSink(new JdbcSinkFormat(this.scpsConfig).createJdbcSink(sql,jsb,sourceType));
     }
 
-    public <T> void jdbcSink(JdbcConnectionType sourceType,DataStream<T> r, Class<T> tClass) {
+    public <T> void jdbcSink(JdbcType sourceType, DataStream<T> r, Class<T> tClass) {
         Tuple2<String, Object[]> t2 = buildSql(tClass);
 
         r.addSink(new JdbcSinkFormat(this.scpsConfig).createJdbcSink(t2.f0,buildStatement(t2.f1),sourceType));
     }
 
-    public <T> void jdbcSink(JdbcConnectionType sourceType,DataStream<T> r, String sql, JdbcStatementBuilder<T> jsb) {
+    public <T> void jdbcSink(JdbcType sourceType, DataStream<T> r, String sql, JdbcStatementBuilder<T> jsb) {
         r.addSink(new JdbcSinkFormat(this.scpsConfig).createJdbcSink(sql,jsb,sourceType));
     }
 
@@ -136,26 +131,6 @@ public class StreamSinkFactory extends ConfigBase {
                 throw new SQLException(e);
             }
         };
-    }
-
-    public void HttpSink(DataStream<String> r, String url, String method, Properties properties) {
-        r.sinkTo(HttpSink.<String>builder()
-            .setEndpointUrl(url)
-            .setElementConverter(new SchemaLifecycleAwareElementConverter<String, HttpSinkRequestEntry>() {
-                @Override
-                public void open(Sink.InitContext initContext) {
-
-                }
-
-                @Override
-                public HttpSinkRequestEntry apply(String s, SinkWriter.Context context) {
-                    //"POST"
-                    return new HttpSinkRequestEntry(method, s.getBytes(StandardCharsets.UTF_8));
-                }
-            })
-            .setProperties(properties)
-            .build()
-        );
     }
 
     /**

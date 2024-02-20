@@ -1,7 +1,7 @@
 package com.flinkuse.core.connector.jdbc;
 
 import com.flinkuse.core.constance.ConfigKeys;
-import com.flinkuse.core.enums.JdbcConnectionType;
+import com.flinkuse.core.enums.JdbcType;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.functions.async.ResultFuture;
@@ -22,11 +22,11 @@ import java.util.concurrent.Future;
 public abstract class JdbcAsyncFormat<IN,OUT> extends RichAsyncFunction<IN,OUT> {
 
     private JdbcConnectionPool jdbcConnect;
-    private JdbcStatementFunction jdbcQueryFunction;
-    private JdbcConnectionType jdbcType;
+    private JdbcStatement jsf;
+    private final JdbcType jdbcType;
     private ExecutorService executorService;
 
-    public JdbcAsyncFormat(JdbcConnectionType jdbcType){
+    public JdbcAsyncFormat(JdbcType jdbcType){
         this.jdbcType = jdbcType;
     }
 
@@ -51,16 +51,15 @@ public abstract class JdbcAsyncFormat<IN,OUT> extends RichAsyncFunction<IN,OUT> 
     }
 
     @Override
-    public void asyncInvoke(IN input, ResultFuture<OUT> resultFuture) throws Exception {
+    public void asyncInvoke(IN element, ResultFuture<OUT> resultFuture) throws Exception {
 
-        Future<OUT> dbResult = executorService.submit(() -> asyncInvokeInput(input,jdbcQueryFunction));
+        Future<OUT> dbResult = executorService.submit(() -> asyncInvokeHandle(element, jsf));
 
         CompletableFuture.supplyAsync( () -> {
             try {
                 return dbResult.get();
             } catch (InterruptedException | ExecutionException e) {
-                log.info("JDBC async error, input data:\n{}\n", input.toString());
-                e.printStackTrace();
+                log.error("JDBC async input data:[{}]", element.toString(), e);
                 return null;
             }
         }).thenAccept( (OUT data) -> {
@@ -72,28 +71,7 @@ public abstract class JdbcAsyncFormat<IN,OUT> extends RichAsyncFunction<IN,OUT> 
         });
     }
 
-    public OUT asyncInvokeInput(IN input,JdbcStatementFunction jdbcQueryFunction) throws Exception {
-        return asyncInvokeInputHandle(input,jdbcQueryFunction);
-    }
-
-    /***
-     * 处理单条数据 超过设置的时间时调用此函数
-     * 一般的超时原因多数为asyncInvokeInputHandle方法内部bug或者返回值为null
-     * @param input
-     * @param resultFuture
-     */
-    @Override
-    public void timeout(IN input, ResultFuture<OUT> resultFuture) {
-        resultFuture.completeExceptionally(new RuntimeException(" ClickHouse op timeout "));
-
-    }
-
-
-    public JdbcStatementFunction getJdbcQueryFunction(){
-        return jdbcQueryFunction;
-    }
-
-    public abstract OUT asyncInvokeInputHandle(IN input, JdbcStatementFunction jdbcQueryFunction) throws Exception ;
+    public abstract OUT asyncInvokeHandle(IN element, JdbcStatement jdbcQueryFunction) throws Exception;
 
     private void initClickhouse(Configuration parameters) throws Exception {
         jdbcConnect = JdbcConnectionPool.buildJdbcConnectionPool()
@@ -108,7 +86,7 @@ public abstract class JdbcAsyncFormat<IN,OUT> extends RichAsyncFunction<IN,OUT> 
                 .setMaxPoolConn(parameters.getInteger(ConfigKeys.clickhouse_maximumConnection))
                 .finish();
 
-        jdbcQueryFunction = new JdbcStatementFunction(jdbcConnect);
+        jsf = new JdbcStatement(jdbcConnect);
     }
     private void initDoris(Configuration parameters) throws Exception {
         jdbcConnect = JdbcConnectionPool.buildJdbcConnectionPool()
@@ -135,6 +113,6 @@ public abstract class JdbcAsyncFormat<IN,OUT> extends RichAsyncFunction<IN,OUT> 
                 .setTestWhileIdle(parameters.getBoolean(ConfigKeys.doris_testWhileIdle))
                 .setUsePingMethod(parameters.getBoolean(ConfigKeys.doris_usePingMethod))
                 .finish();
-        jdbcQueryFunction = new JdbcStatementFunction(jdbcConnect);
+        jsf = new JdbcStatement(jdbcConnect);
     }
 }

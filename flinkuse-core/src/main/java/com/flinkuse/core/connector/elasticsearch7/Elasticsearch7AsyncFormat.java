@@ -1,7 +1,13 @@
 package com.flinkuse.core.connector.elasticsearch7;
 
 import org.apache.flink.configuration.Configuration;
+import org.apache.flink.streaming.api.functions.async.ResultFuture;
 import org.apache.flink.streaming.api.functions.async.RichAsyncFunction;
+import org.elasticsearch.client.RestHighLevelClient;
+
+import java.io.IOException;
+import java.security.KeyManagementException;
+import java.security.NoSuchAlgorithmException;
 
 /**
  * @author learn
@@ -9,23 +15,22 @@ import org.apache.flink.streaming.api.functions.async.RichAsyncFunction;
  */
 public abstract class Elasticsearch7AsyncFormat<IN,OUT> extends RichAsyncFunction<IN, OUT> {
 
-    private Elasticsearch7Function e7f;
+    private transient RestHighLevelClient restHighLevelClient;
 
     @Override
-    public void open(Configuration parameters) throws Exception {
-        super.open(parameters);
+    public void open(Configuration parameters) throws KeyManagementException, NoSuchAlgorithmException {
         parameters = (Configuration) getRuntimeContext().getExecutionConfig().getGlobalJobParameters();
-        e7f = new Elasticsearch7Function();
-        e7f.open(parameters);
+        restHighLevelClient = new RestHighLevelClient(Elasticsearch7ClientBase.getRestClientBuilder(parameters));
     }
 
     @Override
-    public void close() throws Exception {
-        super.close();
-        if (e7f != null)
-            e7f.close();
+    public void close() throws IOException {
+        if (restHighLevelClient != null)
+            restHighLevelClient.close();
     }
-    public Elasticsearch7Function getFunction() {
-        return e7f;
+
+    @Override
+    public void asyncInvoke(IN in, ResultFuture<OUT> resultFuture) throws Exception {
+//        restHighLevelClient.searchAsync();
     }
 }

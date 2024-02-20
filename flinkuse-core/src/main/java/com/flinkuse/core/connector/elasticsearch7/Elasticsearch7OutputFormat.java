@@ -2,6 +2,7 @@ package com.flinkuse.core.connector.elasticsearch7;
 
 import com.alibaba.fastjson.JSONObject;
 import com.flinkuse.core.constance.ConfigKeys;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.flink.api.common.io.RichOutputFormat;
 import org.apache.flink.configuration.Configuration;
 import org.apache.http.HttpHost;
@@ -12,16 +13,13 @@ import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.RestHighLevelClient;
 import org.elasticsearch.common.xcontent.XContentType;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 
-
+@Slf4j
 public class Elasticsearch7OutputFormat<T> extends RichOutputFormat<T> {
 
     private static final long serialVersionUID = 1L;
-    private static final Logger LOG = LoggerFactory.getLogger(Elasticsearch7OutputFormat.class);
 
     private transient RestHighLevelClient restHighLevelClient;
     private transient BulkRequest bulkRequest;
@@ -52,7 +50,7 @@ public class Elasticsearch7OutputFormat<T> extends RichOutputFormat<T> {
                 batchCount = 0;
                 break;
             } catch (Exception e) {
-                LOG.error("ElasticSearch executeBatch error, retry times = {}", i, e);
+                log.error("ElasticSearch executeBatch error, retry times = {}", i, e);
                 if (i >= maxRetries) {
                     throw new IOException(e);
                 }
@@ -72,15 +70,11 @@ public class Elasticsearch7OutputFormat<T> extends RichOutputFormat<T> {
     private void attemptFlush() throws IOException {
         BulkResponse bulkResponse = restHighLevelClient.bulk(bulkRequest, RequestOptions.DEFAULT);
         // 全部操作成功
-        if (!bulkResponse.hasFailures()) {
-//            LOG.info("批量增加操作成功");
-        } else {
+        if (bulkResponse.hasFailures()) {
             for (BulkItemResponse bulkItemResponse : bulkResponse) {
                 if (bulkItemResponse.isFailed()) {
                     BulkItemResponse.Failure failure = bulkItemResponse.getFailure();
                     throw new IOException("批量增加失败，原因：{}" + failure.getMessage());
-                } else {
-//                    LOG.info("文档批量增加成功");
                 }
             }
         }
@@ -100,7 +94,7 @@ public class Elasticsearch7OutputFormat<T> extends RichOutputFormat<T> {
         maxRetries = parameters.getInteger(ConfigKeys.elasticsearch_max_retries);
 
         try {
-            restHighLevelClient = new RestHighLevelClient(Elasticsearch7ClientBase.getRestClientBuilder(hosts,parameters));
+            restHighLevelClient = new RestHighLevelClient(Elasticsearch7ClientBase.getRestClientBuilder(parameters));
         } catch (Exception e) {
             throw new RuntimeException("Connect to ElasticSearch failed.", e);
         }
@@ -151,7 +145,7 @@ public class Elasticsearch7OutputFormat<T> extends RichOutputFormat<T> {
             try {
                 flush();
             } catch (Exception e) {
-                LOG.warn("Writing records to ElasticSearch failed.", e);
+                log.warn("Writing records to ElasticSearch failed.", e);
                 throw new RuntimeException("Writing records to ElasticSearch failed.", e);
             }
         }

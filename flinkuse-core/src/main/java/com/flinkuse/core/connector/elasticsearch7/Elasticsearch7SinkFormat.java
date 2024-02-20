@@ -8,6 +8,9 @@ import org.apache.flink.connector.elasticsearch.sink.ElasticsearchEmitter;
 import org.apache.flink.connector.elasticsearch.sink.ElasticsearchSink;
 import org.apache.http.HttpHost;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * @author learn
  * @date 2023/2/1 11:04
@@ -16,13 +19,17 @@ public class Elasticsearch7SinkFormat extends ConfigBase {
     public Elasticsearch7SinkFormat(Configuration scpsConfig) {
         super(scpsConfig);
     }
-    public <T> ElasticsearchSink<T> createEs7Sink(ElasticsearchEmitter<? super T> emitter){
+    public <T> ElasticsearchSink<T> createEs7Sink(ElasticsearchEmitter<? super T> emitter) {
+        String[]  hostStr = this.scpsConfig.get(ConfigKeys.elasticsearch_hosts).split(",");
+        List<HttpHost> hosts = new ArrayList<>();
+        for (String h : hostStr) {
+            String[] ip = h.split(":");
+            hosts.add(new HttpHost(ip[0], Integer.parseInt(ip[1]), this.scpsConfig.get(ConfigKeys.elasticsearch_scheme)));
+        }
         return new Elasticsearch7SinkBuilder<T>()
                 .setBulkFlushMaxActions(this.scpsConfig.getInteger(ConfigKeys.elasticsearch_bulk_flush_max_actions))
                 .setBulkFlushInterval(this.scpsConfig.getLong(ConfigKeys.elasticsearch_bulk_flush_interval))
-                .setHosts(new HttpHost(this.scpsConfig.get(ConfigKeys.elasticsearch_host)
-                        , this.scpsConfig.getInteger(ConfigKeys.elasticsearch_port)
-                        , this.scpsConfig.get(ConfigKeys.elasticsearch_scheme)))
+                .setHosts(hosts.toArray(new HttpHost[0]))
 
                 .setConnectionUsername(this.scpsConfig.get(ConfigKeys.elasticsearch_username))
                 .setConnectionPassword(this.scpsConfig.get(ConfigKeys.elasticsearch_password))

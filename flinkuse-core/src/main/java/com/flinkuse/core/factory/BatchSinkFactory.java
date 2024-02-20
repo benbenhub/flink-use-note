@@ -4,7 +4,7 @@ import com.flinkuse.core.base.ConfigBase;
 import com.flinkuse.core.connector.cos.CosOutputFormat;
 import com.flinkuse.core.connector.http.HttpUrlOutputFormat;
 import com.flinkuse.core.constance.ConfigKeys;
-import com.flinkuse.core.enums.JdbcConnectionType;
+import com.flinkuse.core.enums.JdbcType;
 import com.flinkuse.core.connector.elasticsearch7.Elasticsearch7OutputFormat;
 import com.flinkuse.core.connector.jdbc.SpJdbcOutputFormat;
 import com.flinkuse.core.connector.mongodb.MongodbOutputFormat;
@@ -30,12 +30,12 @@ public class BatchSinkFactory extends ConfigBase {
         super(scpsConfig);
     }
 
-    public void jdbcSink(DataSet<Row> sink, JdbcConnectionType sourceType, String sql) {
+    public void jdbcSink(DataSet<Row> sink, JdbcType sourceType, String sql) {
         int cc = sql.split("\\?").length - 1;
         jdbcSink(sink, sourceType, sql, getObjectTypes(cc));
     }
 
-    public <T> void jdbcSink(DataSet<Row> sink, JdbcConnectionType sourceType, String table, T t) {
+    public <T> void jdbcSink(DataSet<Row> sink, JdbcType sourceType, String table, T t) {
         Class<T> c = (Class<T>) t.getClass();
 
         StringBuilder columnNames = new StringBuilder();
@@ -69,7 +69,7 @@ public class BatchSinkFactory extends ConfigBase {
         jdbcSink(sink, sourceType, columnNames.toString(), fieldTypes);
     }
 
-    public void jdbcSink(DataSet<Row> sink, JdbcConnectionType sourceType, String sql, int[] fieldTypes) {
+    public void jdbcSink(DataSet<Row> sink, JdbcType sourceType, String sql, int[] fieldTypes) {
         switch (sourceType) {
             case mysql:
                 sink.output(new SpJdbcOutputFormat(this.scpsConfig).createMySqlConnect(sql, fieldTypes));
@@ -96,11 +96,7 @@ public class BatchSinkFactory extends ConfigBase {
      * @param <T>
      */
     public <T> void elasticsearchSink(DataSet<T> row, String index) {
-        row.output(new Elasticsearch7OutputFormat<>(index,
-                new HttpHost(this.scpsConfig.get(ConfigKeys.elasticsearch_host)
-                        , this.scpsConfig.get(ConfigKeys.elasticsearch_port)
-                        , this.scpsConfig.get(ConfigKeys.elasticsearch_scheme)
-                )));
+        row.output(new Elasticsearch7OutputFormat<>(index));
     }
 
     public void httpSink(DataSet<Row> row) {

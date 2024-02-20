@@ -1,5 +1,6 @@
 package com.flinkuse.core.connector.http;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.functions.async.ResultFuture;
 import org.apache.flink.streaming.api.functions.async.RichAsyncFunction;
@@ -13,10 +14,10 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 
+@Slf4j
 public abstract class HttpClientAsyncFormat<IN> extends RichAsyncFunction<IN,String> {
 
     private CloseableHttpAsyncClient http_client = null;
-    protected HttpUrlAccessFunction httpUrlAccessFunction;
 
     @Override
     public void open(Configuration parameters) throws Exception {
@@ -25,7 +26,6 @@ public abstract class HttpClientAsyncFormat<IN> extends RichAsyncFunction<IN,Str
 
         http_client = new HttpUrlOutputBase(parameters).createCloseableHttpAsyncClient();
 
-        httpUrlAccessFunction = new HttpUrlAccessFunction();
     }
 
     @Override
@@ -35,36 +35,32 @@ public abstract class HttpClientAsyncFormat<IN> extends RichAsyncFunction<IN,Str
     }
 
     @Override
-    public void timeout(IN input, ResultFuture<String> resultFuture) throws Exception {
-        resultFuture.completeExceptionally(new RuntimeException(" HttpClient async op timeout "));
-    }
-
-    @Override
     public void asyncInvoke(IN in, ResultFuture<String> resultFuture) throws Exception {
         http_client.start();
-        http_client.execute(asyncInvokeInputHandle(in), new FutureCallback<>() {
+        http_client.execute(asyncInvokeHandle(in), new FutureCallback<>() {
             @Override
             public void completed(HttpResponse httpResponse) {
                 try {
                     resultFuture.complete(Collections.singleton(EntityUtils.toString(httpResponse.getEntity(), StandardCharsets.UTF_8)));
                 } catch (IOException e) {
-                    e.printStackTrace();
+                    log.error("[Http Response]", e);
+                    resultFuture.complete(Collections.emptySet());
                 }
             }
 
             @Override
             public void failed(Exception e) {
-                e.printStackTrace();
+                log.error("[Http Response failed]", e);
+                resultFuture.complete(Collections.emptySet());
             }
 
             @Override
             public void cancelled() {
+                log.info("[Http Response cancelled]");
                 resultFuture.complete(Collections.emptySet());
             }
         });
     }
 
-    public abstract HttpRequestBase asyncInvokeInputHandle(IN in) throws Exception;
-
-
+    public abstract HttpRequestBase asyncInvokeHandle(IN in) throws Exception;
 }

@@ -2,7 +2,7 @@ package com.flinkuse.core.connector.jdbc;
 
 import com.flinkuse.core.base.ConfigBase;
 import com.flinkuse.core.constance.ConfigKeys;
-import com.flinkuse.core.enums.JdbcConnectionType;
+import com.flinkuse.core.enums.JdbcType;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.connector.jdbc.JdbcConnectionOptions;
 import org.apache.flink.connector.jdbc.JdbcExecutionOptions;
@@ -18,12 +18,12 @@ public class JdbcSinkFormat extends ConfigBase {
     public JdbcSinkFormat(Configuration scpsConfig) {
         super(scpsConfig);
     }
-    public <T> SinkFunction<T> createJdbcSink(String sql, JdbcStatementBuilder<T> jsb , JdbcConnectionType sourceType){
+    public <T> SinkFunction<T> createJdbcSink(String sql, JdbcStatementBuilder<T> jsb , JdbcType sourceType){
         return JdbcSink.sink(sql, jsb
                 , getJdbcExecutionOptions(sourceType)
                 , getJdbcConnectionOptions(sourceType));
     }
-    private JdbcExecutionOptions getJdbcExecutionOptions(JdbcConnectionType sourceType) {
+    private JdbcExecutionOptions getJdbcExecutionOptions(JdbcType sourceType) {
         switch (sourceType) {
             case mysql:
                 return JdbcExecutionOptions.builder()
@@ -47,7 +47,7 @@ public class JdbcSinkFormat extends ConfigBase {
         }
     }
 
-    private JdbcConnectionOptions getJdbcConnectionOptions(JdbcConnectionType sourceType) {
+    private JdbcConnectionOptions getJdbcConnectionOptions(JdbcType sourceType) {
         switch (sourceType) {
             case mysql:
                 return new JdbcConnectionOptions.JdbcConnectionOptionsBuilder()

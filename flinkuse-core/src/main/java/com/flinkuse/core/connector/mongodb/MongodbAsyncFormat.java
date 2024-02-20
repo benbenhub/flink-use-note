@@ -55,8 +55,7 @@ public abstract class MongodbAsyncFormat<IN,OUT> extends RichAsyncFunction<IN,OU
             try {
                 return dbResult.get();
             } catch (InterruptedException | ExecutionException e) {
-                log.info("Mongodb async error, input data:\n{}\n", input.toString());
-                e.printStackTrace();
+                log.error("Mongodb async input data:[{}]", input.toString(), e);
                 return null;
             }
         }).thenAccept( (OUT data) -> {
@@ -70,14 +69,4 @@ public abstract class MongodbAsyncFormat<IN,OUT> extends RichAsyncFunction<IN,OU
 
     public abstract OUT asyncInvokeInput(IN input, MongoCollection mongoCollection) throws Exception;
 
-    /***
-     * 处理单条数据 超过设置的时间时调用此函数
-     * 一般的超时原因多数为asyncInvokeInputHandle方法内部bug或者返回值为null
-     * @param input
-     * @param resultFuture
-     */
-    @Override
-    public void timeout(IN input, ResultFuture<OUT> resultFuture) {
-        resultFuture.completeExceptionally(new RuntimeException(" Mongodb op timeout "));
-    }
 }

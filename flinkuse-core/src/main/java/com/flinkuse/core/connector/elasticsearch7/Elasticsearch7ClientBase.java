@@ -16,7 +16,11 @@ import org.elasticsearch.client.RestClientBuilder;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
+import java.security.KeyManagementException;
+import java.security.NoSuchAlgorithmException;
 import java.security.cert.X509Certificate;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author learn
@@ -24,12 +28,19 @@ import java.security.cert.X509Certificate;
  */
 public class Elasticsearch7ClientBase {
 
-    public static RestClientBuilder getRestClientBuilder(HttpHost[] hosts, Configuration parameters) throws Exception {
-        return new Elasticsearch7ClientBase().createRestClientBuilder(hosts, parameters);
+    public static RestClientBuilder getRestClientBuilder(Configuration parameters) throws NoSuchAlgorithmException, KeyManagementException {
+        return new Elasticsearch7ClientBase().createRestClientBuilder(parameters);
     }
 
-    private RestClientBuilder createRestClientBuilder(HttpHost[] hosts, Configuration parameters) throws Exception {
-        RestClientBuilder builder = RestClient.builder(hosts);
+    private RestClientBuilder createRestClientBuilder(Configuration parameters) throws NoSuchAlgorithmException, KeyManagementException {
+        String[]  hostStr = parameters.get(ConfigKeys.elasticsearch_hosts).split(",");
+        List<HttpHost> hosts = new ArrayList<>();
+        for (String h : hostStr) {
+            String[] ip = h.split(":");
+            hosts.add(new HttpHost(ip[0], Integer.parseInt(ip[1]), parameters.get(ConfigKeys.elasticsearch_scheme)));
+        }
+
+        RestClientBuilder builder = RestClient.builder(hosts.toArray(new HttpHost[0]));
 
         TrustManager[] trustAllCerts = new TrustManager[]{
                 new X509TrustManager() {

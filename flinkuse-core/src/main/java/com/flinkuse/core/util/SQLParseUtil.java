@@ -7,7 +7,7 @@ import com.alibaba.druid.sql.ast.SQLObject;
 import com.alibaba.druid.sql.ast.SQLStatement;
 import com.alibaba.druid.sql.ast.expr.SQLPropertyExpr;
 import com.alibaba.druid.sql.ast.statement.*;
-import com.flinkuse.core.enums.JdbcConnectionType;
+import com.flinkuse.core.enums.JdbcType;
 import com.flinkuse.core.modul.SqlColumn;
 
 import java.util.ArrayList;
@@ -21,11 +21,11 @@ public class SQLParseUtil {
     //用于存储最终输出的字段
     private List<SqlColumn> SqlColumns = new ArrayList<>();
 
-    public static List<SqlColumn> parseSelect(String sql, JdbcConnectionType dbType) throws Exception {
+    public static List<SqlColumn> parseSelect(String sql, JdbcType dbType) throws Exception {
         return new SQLParseUtil().parseSelect(sql,dbType,false);
     }
 
-    public List<SqlColumn> parseSelect(String sql,JdbcConnectionType dbType, boolean keepComments) throws Exception {
+    public List<SqlColumn> parseSelect(String sql, JdbcType dbType, boolean keepComments) throws Exception {
         String formatSql = SQLUtils.format(sql,DbType.of(dbType.name()));
         SQLStatement sqlStatement = SQLUtils.parseSingleStatement(formatSql, DbType.of(dbType.name()), keepComments);
         if (sqlStatement instanceof SQLSelectStatement

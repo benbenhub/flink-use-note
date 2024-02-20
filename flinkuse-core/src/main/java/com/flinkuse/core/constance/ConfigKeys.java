@@ -231,17 +231,11 @@ public class ConfigKeys {
                     .withDescription("mysql 连接超时时间");
 
     // ***************************elasticsearch****************************
-    public static final ConfigOption<String> elasticsearch_host =
-            ConfigOptions.key("elasticsearch_host")
+    public static final ConfigOption<String> elasticsearch_hosts =
+            ConfigOptions.key("elasticsearch_hosts")
                     .stringType()
                     .noDefaultValue()
-                    .withDescription("elasticsearch的连接地址");
-
-    public static final ConfigOption<Integer> elasticsearch_port =
-            ConfigOptions.key("elasticsearch_port")
-                    .intType()
-                    .noDefaultValue()
-                    .withDescription("elasticsearch的连接端口");
+                    .withDescription("elasticsearch的连接地址，用斗号分隔");
 
     public static final ConfigOption<String> elasticsearch_username =
             ConfigOptions.key("elasticsearch_username")

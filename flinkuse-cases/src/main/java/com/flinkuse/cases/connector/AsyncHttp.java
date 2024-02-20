@@ -31,7 +31,7 @@ public class AsyncHttp extends StreamApp {
         DataStream<String> skuRes =
                 AsyncDataStream.orderedWait(data, new HttpClientAsyncFormat<>() {
                     @Override
-                    public HttpRequestBase asyncInvokeInputHandle(String o) throws Exception {
+                    public HttpRequestBase asyncInvokeHandle(String o) throws Exception {
                         return httpAccess(o);
                     }
                 }, 1, TimeUnit.MINUTES, 5);

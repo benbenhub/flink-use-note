@@ -3,10 +3,10 @@ package com.flinkuse.cases.connector;
 import com.alibaba.fastjson.JSONObject;
 import com.flinkuse.core.base.StreamApp;
 import com.flinkuse.core.connector.jdbc.JdbcAsyncFormat;
-import com.flinkuse.core.connector.jdbc.JdbcStatementFunction;
+import com.flinkuse.core.connector.jdbc.JdbcStatement;
 import com.flinkuse.core.constance.ConfigKeys;
 import com.flinkuse.core.deserializer.KafkaDeserializerBinlog;
-import com.flinkuse.core.enums.JdbcConnectionType;
+import com.flinkuse.core.enums.JdbcType;
 import com.flinkuse.core.enums.OdsBasicsConf;
 import com.flinkuse.core.enums.SqlOperate;
 import com.flinkuse.core.modul.BinlogBean;
@@ -91,7 +91,7 @@ public class KafkaOutClickhouse extends StreamApp {
 
         // sink batch tables
 //        sinkDorisOrCh(source, JdbcConnectionType.doris);
-        sinkDorisOrCh(source, JdbcConnectionType.clickhouse);
+        sinkDorisOrCh(source, JdbcType.clickhouse);
 
         // sink kafka
         sink().kafkaSink(ds
@@ -182,11 +182,11 @@ public class KafkaOutClickhouse extends StreamApp {
 
         return AsyncDataStream.orderedWait(source
                 , new JdbcAsyncFormat<Tuple2<Long, Iterable<BinlogBean>>
-                        , Long>(JdbcConnectionType.doris) {
+                        , Long>(JdbcType.doris) {
                     @Override
-                    public Long asyncInvokeInputHandle(
+                    public Long asyncInvokeHandle(
                             Tuple2<Long, Iterable<BinlogBean>> t2
-                            , JdbcStatementFunction db) throws Exception {
+                            , JdbcStatement db) throws Exception {
                         int[] exeSqlResult = db.runBatchUpdate(t2.f1, f -> dorisDml(f));
                         log.info("doris 执行了{}条SQL", exeSqlResult.length);
                         return t2.f0;
@@ -206,11 +206,11 @@ public class KafkaOutClickhouse extends StreamApp {
 
         return AsyncDataStream.orderedWait(source
                 , new JdbcAsyncFormat<Tuple2<Long, Iterable<BinlogBean>>
-                        , Tuple2<Long, Iterable<BinlogBean>>>(JdbcConnectionType.clickhouse) {
+                        , Tuple2<Long, Iterable<BinlogBean>>>(JdbcType.clickhouse) {
                     @Override
-                    public Tuple2<Long, Iterable<BinlogBean>> asyncInvokeInputHandle(
+                    public Tuple2<Long, Iterable<BinlogBean>> asyncInvokeHandle(
                             Tuple2<Long, Iterable<BinlogBean>> t2
-                            , JdbcStatementFunction db) throws Exception {
+                            , JdbcStatement db) throws Exception {
                         int[] exeSqlResult = db.runBatchUpdate(t2.f1, f -> chDml(f));
                         log.info("clickhouse 执行了{}条SQL", exeSqlResult.length);
                         return t2;
@@ -221,7 +221,7 @@ public class KafkaOutClickhouse extends StreamApp {
         ).keyBy(t2 -> t2.f0);
     }
 
-    public void sinkDorisOrCh(DataStream<Tuple2<Long, Iterable<BinlogBean>>> source, JdbcConnectionType sourceType) {
+    public void sinkDorisOrCh(DataStream<Tuple2<Long, Iterable<BinlogBean>>> source, JdbcType sourceType) {
         sink(
         ).jdbcSink(sourceType
                 , source.flatMap(new FlatMapFunction<Tuple2<Long, Iterable<BinlogBean>>, BinlogBean>() {
