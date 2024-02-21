@@ -62,7 +62,7 @@ s.print();
 在Flink-v1.18版本中`InputFormatSourceFunction`类已经带有删除线，自定义source最好使用fromSource方法实现Source类。
 
 ## sink
-
+常用的数据库 Flink DataStream Connectors 都支持。
 ## AsyncIO
 继承`RichAsyncFunction`类实现`asyncInvoke`等方法，需要在`asyncInvoke`方法里实现异步调用外部系统，比如[JdbcAsyncFormat](flinkuse-core/src/main/java/com/flinkuse/core/connector/jdbc/JdbcAsyncFormat.java)。
 

@@ -1,7 +1,6 @@
 package com.flinkuse.core.connector.elasticsearch7;
 
 import org.apache.flink.configuration.Configuration;
-import org.apache.flink.streaming.api.functions.async.ResultFuture;
 import org.apache.flink.streaming.api.functions.async.RichAsyncFunction;
 import org.elasticsearch.client.RestHighLevelClient;
 
@@ -27,10 +26,5 @@ public abstract class Elasticsearch7AsyncFormat<IN,OUT> extends RichAsyncFunctio
     public void close() throws IOException {
         if (restHighLevelClient != null)
             restHighLevelClient.close();
-    }
-
-    @Override
-    public void asyncInvoke(IN in, ResultFuture<OUT> resultFuture) throws Exception {
-//        restHighLevelClient.searchAsync();
     }
 }
