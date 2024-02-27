@@ -69,6 +69,9 @@ s.print();
 **重要提示：** 第一次调用 ResultFuture.complete 后 ResultFuture 就完成了。 后续的 complete 调用都将被忽略。
 
 ## 批流一体
+
+[到底什么是流批一体?](https://docs.qq.com/doc/DWFpRTE1vTmtNbk9n)
+
 DataStream API 支持不同的运行时执行模式（STREAMING/BATCH），DataStream API 和 DataSet API 有很大的区别，想用 DataStream API 的BATCH
 执行模式实现与 DataSet API 相同的功能时就会发现，DataSet API 的一些算子 DataStream API 并没有提供：
 - distinct算子 DataStream API 就没有，怎样实现相同的功能呢？可以参考[ReduceDistinct](flinkuse-cases/src/main/java/com/flinkuse/cases/operatorlogic/ReduceDistinct.java)类
