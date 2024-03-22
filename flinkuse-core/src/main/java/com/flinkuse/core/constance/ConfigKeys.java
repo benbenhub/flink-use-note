@@ -560,11 +560,11 @@ public class ConfigKeys {
 
     // ***************************Mongodb****************************
 
-    public static final ConfigOption<String> mongodb_uri =
-            ConfigOptions.key("mongodb_uri")
+    public static final ConfigOption<String> mongodb_hosts =
+            ConfigOptions.key("mongodb_hosts")
                     .stringType()
                     .noDefaultValue()
-                    .withDescription("mongodb_uri 无默认");
+                    .withDescription("mongodb服务器的主机名和端口对的逗号分隔列表。无默认");
 
     public static final ConfigOption<String> mongodb_host =
             ConfigOptions.key("mongodb_host")

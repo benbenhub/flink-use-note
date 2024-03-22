@@ -81,27 +81,14 @@ public class StreamSourceFactory extends ConfigBase {
             , "scps oplog source");
     }
 
-    public DataStream<Map<String, BsonValue>> mongodbSource(MongoSourceBuilder<Map<String, BsonValue>> msb) {
-
+    public <T> DataStream<T> mongodbSource(MongoSourceBuilder<T> msb) {
+        //System.out.println(URLDecoder.decode("%23%40(%23234", StandardCharsets.UTF_8));
         String encodedPassword = URLEncoder.encode(this.scpsConfig.get(ConfigKeys.mongodb_password), StandardCharsets.UTF_8);
-
         String ur = this.scpsConfig.get(ConfigKeys.mongodb_username) + ":" + encodedPassword + "@";
-        String url = this.scpsConfig.get(ConfigKeys.mongodb_host) + ":" + this.scpsConfig.get(ConfigKeys.mongodb_port);
         if (ur.length() < 3) ur = "";
-        return env.fromSource(msb.setUri(String.format("mongodb://%s%s", ur, url)
-        ).setDeserializationSchema(new MongoDeserializationSchema<Map<String, BsonValue>>() {
-            @Override
-            public Map<String, BsonValue> deserialize(BsonDocument bsonDocument) throws IOException {
-                Map<String, BsonValue> result = new HashMap<>();
-                bsonDocument.forEach(result::put);
-                return result;
-            }
-
-            @Override
-            public TypeInformation<Map<String, BsonValue>> getProducedType() {
-                return new MapTypeInfo<>(BasicTypeInfo.STRING_TYPE_INFO,TypeInformation.of(BsonValue.class));
-            }
-        }).build(), WatermarkStrategy.noWatermarks(), "scps MongoDB Source");
+        return env.fromSource(msb.setUri(
+                String.format("mongodb://%s%s", ur, this.scpsConfig.get(ConfigKeys.mongodb_hosts))
+        ).build(), WatermarkStrategy.noWatermarks(), "scps MongoDB Source");
     }
 
     public DataStream<String> cosSource(String... cosObjs) {

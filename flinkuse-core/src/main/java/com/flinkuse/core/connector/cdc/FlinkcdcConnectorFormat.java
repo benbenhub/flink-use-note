@@ -48,7 +48,7 @@ public class FlinkcdcConnectorFormat extends ConfigBase {
 
     public <T> MongoDBSource<T> createMongodbCdc(DebeziumDeserializationSchema<T> deserializer){
         MongoDBSourceBuilder<T> mongoDBSourceBuilder = MongoDBSource.<T>builder()
-                .hosts(this.scpsConfig.get(ConfigKeys.mongodb_host) + ":" + this.scpsConfig.get(ConfigKeys.mongodb_port))
+                .hosts(this.scpsConfig.get(ConfigKeys.mongodb_hosts))
                 .username(this.scpsConfig.get(ConfigKeys.mongodb_username))
                 .password(this.scpsConfig.get(ConfigKeys.mongodb_password))
                 .databaseList(this.scpsConfig.get(ConfigKeys.mongodb_binlog_database_list).split(";"))
