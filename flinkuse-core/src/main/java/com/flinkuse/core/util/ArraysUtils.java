@@ -1,6 +1,9 @@
 package com.flinkuse.core.util;
 
+import org.apache.flink.api.java.tuple.Tuple2;
+
 import java.util.*;
+import java.util.stream.Collectors;
 
 
 /**
@@ -76,5 +79,53 @@ public class ArraysUtils {
         return result;
     }
 
+    public static Tuple2<String, Map<Integer, List<Long>>> paramsSqlArray(Map<Long, Integer> map, int parallelism) {
+        // 根据数量排序ID
+        List<Map.Entry<Long, Integer>> sortedEntries = new ArrayList<>(map.entrySet());
+        sortedEntries.sort(Map.Entry.comparingByValue());
 
+        // 分配ID到不同的组
+        List<List<Long>> groups = new ArrayList<>();
+        for (int i = 0; i < parallelism; i++) {
+            groups.add(new ArrayList<>());
+        }
+
+        int totalSum = sortedEntries.stream().mapToInt(Map.Entry::getValue).sum();
+        int[] groupSums = new int[parallelism];
+        int halfSum = totalSum / parallelism;
+
+        // 分治策略，尽量平衡两个组的数量之和
+        for (int i = 0; i < sortedEntries.size();) {
+            for (int gsi = 0; gsi < groupSums.length; gsi++) {
+                if (groupSums[gsi] <= halfSum) {
+                    groups.get(gsi).add(sortedEntries.get(i).getKey());
+                    groupSums[gsi] += sortedEntries.get(i++).getValue();
+                    break;
+                }
+            }
+        }
+        long recParallelism = groups.stream().filter(f -> f.size() > 0).count();
+        groups = groups.stream().peek(m -> {if (m.size() == 0) m.add(0L);}).collect(Collectors.toList());
+        if (recParallelism < parallelism)
+            System.out.println("设置" + parallelism + "分区过大建议分区数" + recParallelism);
+        Map<Integer, List<Long>> cv = new HashMap<>();
+        StringBuilder jsb = new StringBuilder();
+        int max = 0;
+        for (int dd = 0; dd < groups.size(); dd++) {
+            if (max < groups.get(dd).size()) max = groups.get(dd).size();
+            cv.put(dd, groups.get(dd));
+        }
+        if (max > 0) jsb.append("?,".repeat(max));
+        if (jsb.length() > 1) jsb.delete(jsb.length() - 1, jsb.length());
+
+        for (Map.Entry<Integer, List<Long>> e : cv.entrySet()) {
+            if (e.getValue().size() < max) {
+                int cc = max - e.getValue().size();
+                for (int ii = 0; ii < cc; ii++) {
+                    e.getValue().add(0L);
+                }
+            }
+        }
+        return Tuple2.of(jsb.toString(), cv);
+    }
 }
