@@ -9,6 +9,20 @@
 Flink Java 使用笔记，Flink源码解析，数据处理逻辑记录，Flink Connectors 部分参考[纯钧](https://github.com/DTStack/chunjun)
 ，将不同的数据库链接封装在[flinkuse-core](flinkuse-core/src/main/java/com/flinkuse/core)，[flinkuse-cases](flinkuse-cases/src/main/java/com/flinkuse/cases)列举Flink算子使用样例和流式数据处理逻辑样例。
 
+## 基于 Flink 大数据平台架构
+
+| 版本 | 架构 | 总结 |
+| ---- | ---- | ---- |
+| V1 | ![ods_local.png](docs/images/ods-process.PNG) |  |
+| V2 |  |  |
+| V3 |  |  |
+| V4 |  |  |
+| V5 |  |  |
+
+Flink + Kubernetes + ds + Dinky + Clickhouse + Doris + Paimon  
+Flink Kubernetes Operator
+
+
 ## 提交方式
 如下提交方式中程序用到的所有参数都可以配置在`flinkuse.properties`文件中，比如clickhouse的用户名密码等配置，关于Connectors配置的key
 都写死在[ConfigKeys](flinkuse-core/src/main/java/com/flinkuse/core/constance/ConfigKeys.java)类里可以参照[flinkuse.properties](flinkuse.properties)
