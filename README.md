@@ -4,24 +4,23 @@
   <img src="https://img.shields.io/github/stars/benbenhub/flink-use-note?style=social" alt="npm version" />
 </p>
 
+## 基于 Flink 大数据平台架构
+
+### 组件架构
+![ods_local.png](docs/images/组件.PNG)
+
+### V1-（Lambda）
+![ods_local.png](docs/images/Lambda.PNG)
+
+用 Flink + clickhouse 搭建轻量数仓。Lambda 架构虽然可以有效支持离线和实时数据开发需求，但流批两条链路“割裂”，也导致了高开发成本以及数据口径不一致等问题。并且 Flink DataSet API 早就不再维护，DataSet 与 DataStream定义 source 的 API 也各有不同。
+
+### V2-（流批一体）
+![ods_local.png](docs/images/stream.PNG)
+
 ## 介绍
 
 Flink Java 使用笔记，Flink源码解析，数据处理逻辑记录，Flink Connectors 部分参考[纯钧](https://github.com/DTStack/chunjun)
 ，将不同的数据库链接封装在[flinkuse-core](flinkuse-core/src/main/java/com/flinkuse/core)，[flinkuse-cases](flinkuse-cases/src/main/java/com/flinkuse/cases)列举Flink算子使用样例和流式数据处理逻辑样例。
-
-## 基于 Flink 大数据平台架构
-
-| 版本 | 架构 | 总结 |
-| ---- | ---- | ---- |
-| V1 | ![ods_local.png](docs/images/ods-process.PNG) |  |
-| V2 |  |  |
-| V3 |  |  |
-| V4 |  |  |
-| V5 |  |  |
-
-Flink + Kubernetes + ds + Dinky + Clickhouse + Doris + Paimon  
-Flink Kubernetes Operator
-
 
 ## 提交方式
 如下提交方式中程序用到的所有参数都可以配置在`flinkuse.properties`文件中，比如clickhouse的用户名密码等配置，关于Connectors配置的key
