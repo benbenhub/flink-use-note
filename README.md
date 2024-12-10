@@ -7,15 +7,15 @@
 ## 基于 Flink 大数据平台架构
 
 ### 组件架构
-![ods_local.png](docs/images/组件.PNG)
+![_local.png](docs/images/组件.PNG)
 
 ### V1-（Lambda）
-![ods_local.png](docs/images/Lambda.PNG)
+![lambda_local.png](docs/images/Lambda.PNG)
 
 用 Flink + clickhouse 搭建轻量数仓。Lambda 架构虽然可以有效支持离线和实时数据开发需求，但流批两条链路“割裂”，也导致了高开发成本以及数据口径不一致等问题。并且 Flink DataSet API 早就不再维护，DataSet 与 DataStream定义 source 的 API 也各有不同。
 
 ### V2-（流批一体）
-![ods_local.png](docs/images/stream.PNG)
+![stream_local.png](docs/images/stream.PNG)
 
 ## 介绍
 
