@@ -17,10 +17,18 @@
 ### V2-（流批一体）
 ![stream_local.png](docs/images/stream.PNG)
 
-## 介绍
+[到底什么是流批一体?](https://docs.qq.com/doc/DWFpRTE1vTmtNbk9n)
 
-Flink Java 使用笔记，Flink源码解析，数据处理逻辑记录，Flink Connectors 部分参考[纯钧](https://github.com/DTStack/chunjun)
-，将不同的数据库链接封装在[flinkuse-core](flinkuse-core/src/main/java/com/flinkuse/core)，[flinkuse-cases](flinkuse-cases/src/main/java/com/flinkuse/cases)列举Flink算子使用样例和流式数据处理逻辑样例。
+DataStream API 支持不同的运行时执行模式（STREAMING/BATCH），DataStream API 和 DataSet API 有很大的区别，想用 DataStream API 的BATCH
+执行模式实现与 DataSet API 相同的功能时就会发现，DataSet API 的一些算子 DataStream API 并没有提供：
+- distinct算子 DataStream API 就没有，怎样实现相同的功能呢？可以参考[ReduceDistinct](flinkuse-cases/src/main/java/com/flinkuse/cases/operatorlogic/ReduceDistinct.java)类
+
+
+[comment]: <> (## 介绍)
+
+[comment]: <> (Flink Java 使用笔记，Flink源码解析，数据处理逻辑记录，Flink Connectors 部分参考[纯钧]&#40;https://github.com/DTStack/chunjun&#41;)
+
+[comment]: <> (，将不同的数据库链接封装在[flinkuse-core]&#40;flinkuse-core/src/main/java/com/flinkuse/core&#41;，[flinkuse-cases]&#40;flinkuse-cases/src/main/java/com/flinkuse/cases&#41;列举Flink算子使用样例和流式数据处理逻辑样例。)
 
 ## 提交方式
 如下提交方式中程序用到的所有参数都可以配置在`flinkuse.properties`文件中，比如clickhouse的用户名密码等配置，关于Connectors配置的key
@@ -80,11 +88,3 @@ s.print();
 继承`RichAsyncFunction`类实现`asyncInvoke`等方法，需要在`asyncInvoke`方法里实现异步调用外部系统，比如[JdbcAsyncFormat](flinkuse-core/src/main/java/com/flinkuse/core/connector/jdbc/JdbcAsyncFormat.java)。
 
 **重要提示：** 第一次调用 ResultFuture.complete 后 ResultFuture 就完成了。 后续的 complete 调用都将被忽略。
-
-## 批流一体
-
-[到底什么是流批一体?](https://docs.qq.com/doc/DWFpRTE1vTmtNbk9n)
-
-DataStream API 支持不同的运行时执行模式（STREAMING/BATCH），DataStream API 和 DataSet API 有很大的区别，想用 DataStream API 的BATCH
-执行模式实现与 DataSet API 相同的功能时就会发现，DataSet API 的一些算子 DataStream API 并没有提供：
-- distinct算子 DataStream API 就没有，怎样实现相同的功能呢？可以参考[ReduceDistinct](flinkuse-cases/src/main/java/com/flinkuse/cases/operatorlogic/ReduceDistinct.java)类
